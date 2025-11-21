@@ -9,7 +9,7 @@ class TestCreateUser:
     
     @allure.title("Создание уникального пользователя")
     @allure.description("Проверка успешного создания нового пользователя")
-    def test_create_unique_user(self, base_url, generate_unique_email, generate_unique_name):
+    def test_create_unique_user(self, base_url, generate_unique_email, generate_unique_name, cleanup_users):
         """Тест создания уникального пользователя"""
         user_data = {
             "email": generate_unique_email(),
@@ -31,12 +31,9 @@ class TestCreateUser:
         assert "accessToken" in response_data, "В ответе должен быть accessToken"
         assert "refreshToken" in response_data, "В ответе должен быть refreshToken"
         
-        # Очистка: выход из системы
-        if "refreshToken" in response_data:
-            requests.post(
-                f"{base_url}/auth/logout",
-                json={"token": response_data["refreshToken"]}
-            )
+        refresh_token = response_data.get("refreshToken")
+        if refresh_token:
+            cleanup_users.append(refresh_token)
     
     @allure.title("Создание пользователя, который уже зарегистрирован")
     @allure.description("Проверка ошибки при попытке создать уже существующего пользователя")

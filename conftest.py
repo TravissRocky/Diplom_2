@@ -88,3 +88,19 @@ def get_ingredients(base_url):
             return [ingredient["_id"] for ingredient in ingredients[:2]]
     return []
 
+
+@pytest.fixture
+def cleanup_users(base_url):
+    """Удаление созданных в тестах пользователей"""
+    tokens = []
+    yield tokens
+    for token in tokens:
+        if token:
+            try:
+                requests.post(
+                    f"{base_url}/auth/logout",
+                    json={"token": token}
+                )
+            except:
+                pass
+
